@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+           <record id="sales_order_customised_email_template" model="mail.template">
+            <field name="name">Sales Order: Send Customised Email</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="email_from">${object.user_id.email_formatted |safe}</field>
+            <field name="email_to">${object.partner_id.email}</field>
+            <field name="subject">${object.company_id.name} ${object.state in ('draft', 'sent') and 'Quotation' or 'Order'} (Ref ${object.name or 'n/a' })</field>
+            <field name="body_html" type="html">
+                 <div style="margin: 0px; padding: 0px;">
+                     <div style="height: 120px; width: 100%; background-color: #47acff; padding-top: 2px">
+                        <h2 style="color: white; text-align: center; padding-top:10px;">
+                            <img src="/web/image?model=res.company&amp;id=${object.company_id.id}&amp;field=logo" height="100px" width="100px" />
+                        </h2>
+                     </div>
+                    <div style="height: 50px; width: 100%; background-color: #ffd146; padding-top: 2px">
+                          <h2 style="color: black; text-align: center">${object.company_id.name}</h2>
+                     </div>
+                    <hr />
+                    <h2>Thank You for Shopping at ${object.company_id.name}</h2>
+                    <div style="background-color: #f1eeee; height: 115px; width: 100%; display: flex">
+                        <div style=" padding-top: 2%; padding-left: 3%; width: 70%">
+                            <!-- <a style="padding: 7px; background-color: #ffd146">View Quotation</a> -->
+<!--                            <button style="padding: 5px; background-color: #fd7e14">View Quotation</button>-->
+                        </div>
+                        <div style="padding-right: 3%; padding-top: 8px; width: 30%">
+                            <p>
+                            <b>Here is Your Order Information</b> <br />
+                            Order Number/ID: ${object.name}<br />
+                            Items Ordered: ${len(object.order_line)}<br/>
+                            Total: ${object.amount_total} ${object.currency_id.name}
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <p style="background-color: #f1eeee; border-top: solid; border-top-color: #ffd146; font-size: 15px; margin-top: 10px; padding: 2px"><b>Your Order Details</b></p>
+                        <div style="display: flex">
+                            <p><strong>Estimated Delivery:</strong> ${object.est_delivery.isoformat().split('T')[0]}, by ${object.est_delivery.isoformat().split('T')[1].split('.')[0]}</p>
+                        </div>
+                    </div>
+
+                   % for row in object.order_line:
+                     <div style="display: flex; border-top: solid;">
+                        <div style=" display: flex; padding: 5px; width: 80%">
+                            <div style=" width: 20%">
+                                <img src="/web/image?model=product.product&amp;id=${row.product_id.id}&amp;field=image_medium" height="25px" width="25px" />
+                            </div>
+                            <div style="width: 80%">
+                                <h4>${row.product_id.name}</h4>
+                            </div>
+                        </div>
+                        <div style=" background-color: #f1eeee; padding: 2px; width: 20%">
+                            <h4 style="text-align: center">${row.price_unit}</h4>
+                        </div>
+                    </div>
+                    % endfor
+                    <div style="border-top: solid; display: flex; background-color: #f1eeee; padding: 2px">
+                        <h4 style="width: 80%; text-align: right; padding-right: 2%">Grand Total</h4>
+                        <h4 style=" text-align: center; width: 20%; padding-left: 2%">${object.amount_total}</h4>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <p style="border-top: solid; border-top-color: #ffd146; padding: 3px; background-color: #f1eeee;"><b>Your Order Will be Shipped to</b></p>
+                        <p>Delivery Address:</p>
+                        <p> <b>${object.partner_id.name}</b> </p>
+                        <p>${object.partner_id.street}</p>
+                        <p>${object.partner_id.city}, ${object.partner_id.state_id.name} <br/>
+                            ${object.partner_id.country_id.name}
+                        </p>
+                        <p>${object.partner_id.phone}</p>
+                    </div>
+                </div>
+            </field>
+            <!-- <field name="report_template" ref="action_report_saleorder"/> -->
+            <field name="report_name">${(object.name or '').replace('/','_')}</field>
+            <field name="lang">${object.partner_id.lang}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="user_signature" eval="False"/>
+        </record>
+    </data>
+</odoo>
